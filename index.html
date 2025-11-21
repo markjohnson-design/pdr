@@ -212,6 +212,36 @@
             color: #7b1fa2;
         }
 
+        .badge-internal-appointments {
+            background: #e1f5fe;
+            color: #01579b;
+        }
+
+        .badge-internal-appointments-not-selected {
+            background: #fce4ec;
+            color: #880e4f;
+        }
+
+        .badge-external-appointments {
+            background: #f1f8e9;
+            color: #33691e;
+        }
+
+        .badge-committees {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .badge-whole-school-items {
+            background: #ede7f6;
+            color: #4527a0;
+        }
+
+        .badge-training-delivered {
+            background: #e0f2f1;
+            color: #004d40;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -300,26 +330,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📚 Professional Development Logger</h1>
-            <p>Track your learning journey and professional growth</p>
-        </div>
-
-        <div class="setup-notice" id="setupNotice">
-            <strong>⚙️ Setup Required</strong>
-            <p>Please enter your Google Apps Script Web App URL below to connect to your Google Sheet. See instructions in the setup guide.</p>
-        </div>
-
-        <div class="card">
-            <h2 style="margin-bottom: 30px; color: #333;">Configuration</h2>
-            <div class="form-group">
-                <label for="scriptUrl">Google Apps Script Web App URL *</label>
-                <input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec">
-                <small style="color: #666; display: block; margin-top: 5px;">
-                    This URL is from your Google Apps Script deployment
-                </small>
-            </div>
-            <button onclick="saveConfig()" class="btn">Save Configuration</button>
-            <div id="configMessage"></div>
+            <h1>Mark Johnson</h1>
+            <p>Professional Development Review Portfolio</p>
         </div>
 
         <div class="card">
@@ -345,16 +357,15 @@
                             <option value="pastoral">Pastoral</option>
                             <option value="other-half">Other Half</option>
                             <option value="other">Other</option>
+                            <option value="internal-appointments">Internal Appointments</option>
+                            <option value="internal-appointments-not-selected">Internal Appointments - Not Selected</option>
+                            <option value="external-appointments">External Appointments</option>
+                            <option value="committees">Committees</option>
+                            <option value="whole-school-items">Whole-School Items</option>
+                            <option value="training-delivered">Training Delivered</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="status">Status *</label>
-                        <select id="status" required>
-                            <option value="">Select status</option>
-                            <option value="completed">Completed</option>
-                            <option value="in-progress">In Progress</option>
-                        </select>
-                    </div>
+                    <div class="form-group"></div>
                 </div>
 
                 <div class="row">
@@ -373,21 +384,13 @@
                     <textarea id="description" placeholder="Describe what you learned and how it applies to your professional development..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="files">File Names/Links (optional)</label>
-                    <input type="text" id="files" placeholder="e.g., certificate.pdf, completion-badge.jpg">
-                    <small style="color: #666; display: block; margin-top: 5px;">
-                        Note: Files aren't uploaded. Enter file names or URLs for reference.
-                    </small>
-                </div>
-
                 <button type="submit" class="btn" id="submitBtn">Add Course Log</button>
                 <div id="formMessage"></div>
             </form>
         </div>
 
         <div class="card">
-            <h2 style="margin-bottom: 20px; color: #333;">Your Course Logs</h2>
+            <h2 style="margin-bottom: 20px; color: #333;">MTJ Portfolio</h2>
             
             <div class="row" style="margin-bottom: 25px;">
                 <div class="form-group">
@@ -398,6 +401,12 @@
                         <option value="pastoral">Pastoral</option>
                         <option value="other-half">Other Half</option>
                         <option value="other">Other</option>
+                        <option value="internal-appointments">Internal Appointments</option>
+                        <option value="internal-appointments-not-selected">Internal Appointments - Not Selected</option>
+                        <option value="external-appointments">External Appointments</option>
+                        <option value="committees">Committees</option>
+                        <option value="whole-school-items">Whole-School Items</option>
+                        <option value="training-delivered">Training Delivered</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -425,71 +434,70 @@
         let logs = [];
         let currentFilter = 'all';
         let pdrDate = null;
-        let scriptUrl = '';
+        let scriptUrl = 'https://script.google.com/macros/s/AKfycbzzXepc6q-4KoGRHgCWmP1mQ2qSLU1VBGrl9L5dU_OtiaIkygXeu1gVhPUer_WDSyH3Eg/exec';
 
-        // Load configuration on page load
+        // Load logs on page load
         window.addEventListener('load', function() {
-            const savedUrl = localStorage.getItem('scriptUrl');
-            if (savedUrl) {
-                scriptUrl = savedUrl;
-                document.getElementById('scriptUrl').value = savedUrl;
-                document.getElementById('setupNotice').style.display = 'none';
-                loadLogs();
-            }
+            document.getElementById('setupNotice').style.display = 'none';
+            document.getElementById('scriptUrl').value = scriptUrl;
+            loadLogs();
         });
 
         function saveConfig() {
-            const url = document.getElementById('scriptUrl').value.trim();
-            if (!url) {
-                showMessage('configMessage', 'Please enter a valid URL', 'error');
-                return;
-            }
-            
-            scriptUrl = url;
-            localStorage.setItem('scriptUrl', url);
-            document.getElementById('setupNotice').style.display = 'none';
-            showMessage('configMessage', 'Configuration saved! You can now add and view logs.', 'success');
-            loadLogs();
+            // Not needed anymore - URL is hardcoded
+            return;
         }
 
         async function loadLogs() {
-            if (!scriptUrl) {
-                document.getElementById('logsList').innerHTML = `
-                    <div class="error-message">
-                        Please configure your Google Apps Script URL above first.
-                    </div>
-                `;
-                return;
-            }
-
             document.getElementById('logsList').innerHTML = '<div class="loading">Loading logs...</div>';
 
             try {
-                const response = await fetch(scriptUrl);
+                // Add timestamp to prevent caching
+                const urlWithTimestamp = scriptUrl + (scriptUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+                const response = await fetch(urlWithTimestamp);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.error) {
                     throw new Error(data.error);
                 }
 
+                // Handle empty sheet
+                if (!Array.isArray(data) || data.length === 0) {
+                    logs = [];
+                    renderLogs();
+                    return;
+                }
+
                 logs = data.map(row => ({
-                    timestamp: row.Timestamp,
+                    timestamp: row['Timestamp'],
                     courseName: row['Course Name'],
-                    provider: row.Provider,
-                    category: row.Category,
+                    provider: row['Provider'],
+                    category: row['Category'],
                     startDate: row['Start Date'],
                     completionDate: row['Completion Date'],
-                    status: row.Status,
-                    description: row.Description,
-                    files: row.Files
-                }));
+                    status: row['Status'],
+                    description: row['Description'],
+                    files: row['Files']
+                })).filter(log => log.courseName); // Filter out empty rows
 
                 renderLogs();
             } catch (error) {
+                console.error('Detailed error:', error);
                 document.getElementById('logsList').innerHTML = `
                     <div class="error-message">
-                        Error loading logs: ${error.message}<br>
-                        Make sure your Google Apps Script is properly deployed and the URL is correct.
+                        <strong>Error loading logs:</strong> ${error.message}<br><br>
+                        <strong>Troubleshooting steps:</strong>
+                        <ol style="text-align: left; margin-top: 10px;">
+                            <li>Test your URL in a new browser tab - you should see JSON data</li>
+                            <li>Make sure "Who has access" is set to "Anyone" in deployment settings</li>
+                            <li>Check the browser console (F12) for more details</li>
+                            <li>Verify your Google Sheet has the correct column headers</li>
+                        </ol>
                     </div>
                 `;
             }
@@ -516,11 +524,6 @@
         document.getElementById('courseForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            if (!scriptUrl) {
-                showMessage('formMessage', 'Please configure your Google Apps Script URL first.', 'error');
-                return;
-            }
-
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
@@ -531,31 +534,32 @@
                 category: document.getElementById('category').value,
                 startDate: document.getElementById('startDate').value,
                 completionDate: document.getElementById('completionDate').value,
-                status: document.getElementById('status').value,
+                status: 'completed',
                 description: document.getElementById('description').value,
-                files: document.getElementById('files').value
+                files: ''
             };
 
             try {
                 const response = await fetch(scriptUrl, {
                     method: 'POST',
-                    mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain',
                     },
                     body: JSON.stringify(logData)
                 });
 
-                showMessage('formMessage', 'Course log added successfully!', 'success');
+                // Since we can't read the response with no-cors, assume success if no error thrown
+                showMessage('formMessage', 'Course log submitted! Refreshing in 2 seconds...', 'success');
                 this.reset();
                 
                 // Reload logs after a short delay
                 setTimeout(() => {
                     loadLogs();
-                }, 1000);
+                }, 2000);
 
             } catch (error) {
-                showMessage('formMessage', 'Error adding log: ' + error.message, 'error');
+                showMessage('formMessage', 'Error submitting log. Check console for details. The log may have been saved anyway - try refreshing.', 'error');
+                console.error('Submit error:', error);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Add Course Log';
@@ -575,7 +579,13 @@
                 'academic': 'Academic',
                 'pastoral': 'Pastoral',
                 'other-half': 'Other Half',
-                'other': 'Other'
+                'other': 'Other',
+                'internal-appointments': 'Internal Appointments',
+                'internal-appointments-not-selected': 'Internal Appointments - Not Selected',
+                'external-appointments': 'External Appointments',
+                'committees': 'Committees',
+                'whole-school-items': 'Whole-School Items',
+                'training-delivered': 'Training Delivered'
             };
             return labels[category] || category;
         }
@@ -624,12 +634,8 @@
                         <span>🏢 ${log.provider}</span>
                         <span>📅 ${formatDate(log.startDate)}</span>
                         ${log.completionDate ? `<span>✅ ${formatDate(log.completionDate)}</span>` : ''}
-                        <span class="badge badge-${log.status === 'completed' ? 'completed' : 'in-progress'}">
-                            ${log.status === 'completed' ? 'Completed' : 'In Progress'}
-                        </span>
                     </div>
                     ${log.description ? `<div class="log-description">${log.description}</div>` : ''}
-                    ${log.files ? `<div style="margin-top: 10px; color: #667eea; font-size: 0.9em;">📎 ${log.files}</div>` : ''}
                 </div>
             `).join('');
         }
