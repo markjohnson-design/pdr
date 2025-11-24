@@ -242,6 +242,42 @@
             color: #004d40;
         }
 
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -334,7 +370,55 @@
             <p>Professional Development Review Portfolio</p>
         </div>
 
-        <div class="card">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('portfolio')">📋 View Portfolio</button>
+            <button class="tab" onclick="switchTab('add')">➕ Add New Entry</button>
+        </div>
+
+        <div id="portfolioTab" class="tab-content active">
+            <div class="card">
+                <h2 style="margin-bottom: 20px; color: #333;">MTJ Portfolio</h2>
+                
+                <div class="row" style="margin-bottom: 25px;">
+                    <div class="form-group">
+                        <label for="filterCategory">Filter by Category</label>
+                        <select id="filterCategory">
+                            <option value="all">All Categories</option>
+                            <option value="academic">Academic</option>
+                            <option value="pastoral">Pastoral</option>
+                            <option value="other-half">Other Half</option>
+                            <option value="other">Other</option>
+                            <option value="internal-appointments">Internal Appointments</option>
+                            <option value="internal-interviews-not-selected">Internal Interviews - Not Selected</option>
+                            <option value="external-appointments">External Appointments</option>
+                            <option value="committees">Committees</option>
+                            <option value="whole-school-items">Whole-School Items</option>
+                            <option value="training-delivered">Training Delivered</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pdrDate">PDR Date (filters last 2 years)</label>
+                        <input type="date" id="pdrDate" placeholder="Select PDR date">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button onclick="loadLogs()" class="btn" style="width: auto; padding: 10px 20px;">
+                        🔄 Refresh Logs
+                    </button>
+                    <button onclick="clearFilters()" style="background: #6c757d; width: auto; padding: 10px 20px;" class="btn">
+                        Clear Filters
+                    </button>
+                </div>
+
+                <div id="logsList">
+                    <div class="loading">Loading logs...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="addTab" class="tab-content">
+            <div class="card">
             <h2 style="margin-bottom: 30px; color: #333;">Add New Course Log</h2>
             <form id="courseForm">
                 <div class="row">
@@ -388,45 +472,6 @@
                 <div id="formMessage"></div>
             </form>
         </div>
-
-        <div class="card">
-            <h2 style="margin-bottom: 20px; color: #333;">MTJ Portfolio</h2>
-            
-            <div class="row" style="margin-bottom: 25px;">
-                <div class="form-group">
-                    <label for="filterCategory">Filter by Category</label>
-                    <select id="filterCategory">
-                        <option value="all">All Categories</option>
-                        <option value="academic">Academic</option>
-                        <option value="pastoral">Pastoral</option>
-                        <option value="other-half">Other Half</option>
-                        <option value="other">Other</option>
-                        <option value="internal-appointments">Internal Appointments</option>
-                        <option value="internal-interviews-not-selected">Internal Interviews - Not Selected</option>
-                        <option value="external-appointments">External Appointments</option>
-                        <option value="committees">Committees</option>
-                        <option value="whole-school-items">Whole-School Items</option>
-                        <option value="training-delivered">Training Delivered</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="pdrDate">PDR Date (filters last 2 years)</label>
-                    <input type="date" id="pdrDate" placeholder="Select PDR date">
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button onclick="loadLogs()" class="btn" style="width: auto; padding: 10px 20px;">
-                    🔄 Refresh Logs
-                </button>
-                <button onclick="clearFilters()" style="background: #6c757d; width: auto; padding: 10px 20px;" class="btn">
-                    Clear Filters
-                </button>
-            </div>
-
-            <div id="logsList">
-                <div class="loading">Loading logs...</div>
-            </div>
         </div>
     </div>
 
@@ -438,10 +483,27 @@
 
         // Load logs on page load
         window.addEventListener('load', function() {
-            document.getElementById('setupNotice').style.display = 'none';
-            document.getElementById('scriptUrl').value = scriptUrl;
             loadLogs();
         });
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            if (tabName === 'portfolio') {
+                document.getElementById('portfolioTab').classList.add('active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
+            } else if (tabName === 'add') {
+                document.getElementById('addTab').classList.add('active');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            }
+        }
 
         function saveConfig() {
             // Not needed anymore - URL is hardcoded
@@ -552,9 +614,10 @@
                 showMessage('formMessage', 'Course log submitted! Refreshing in 2 seconds...', 'success');
                 this.reset();
                 
-                // Reload logs after a short delay
+                // Reload logs and switch to portfolio tab
                 setTimeout(() => {
                     loadLogs();
+                    switchTab('portfolio');
                 }, 2000);
 
             } catch (error) {
