@@ -1,31 +1,420 @@
-<div class="row" style="margin-bottom: 25px;">
-    <div class="form-group">
-        <label for="filterCategory">Filter by Category</label>
-        <select id="filterCategory">
-            <option value="all">All Categories</option>
-            <option value="academic">Academic</option>
-            <option value="pastoral">Pastoral</option>
-            <option value="other-half">Other Half</option>
-            <option value="other">Other</option>
-            <option value="internal-appointments">Internal Appointments</option>
-            <option value="internal-interviews-not-selected">Internal Interviews - Not Selected</option>
-            <option value="external-appointments">External Appointments</option>
-            <option value="committees">Committees</option>
-            <option value="whole-school-items">Whole-School Items</option>
-            <option value="training-delivered">Training Delivered</option>
-        </select>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Development Course Logger</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 40px; animation: fadeInDown 0.8s ease; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 600; }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 0.95em; }
+        
+        input[type="text"], input[type="date"], input[type="file"], select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 3-column layout for filters */
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* 2-column layout for form */
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .log-entry {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            animation: slideIn 0.5s ease;
+        }
+        .log-entry h3 { color: #333; margin-bottom: 10px; }
+        .log-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; font-size: 0.9em; color: #666; }
+        .log-description { color: #555; line-height: 1.6; margin-top: 10px; font-size: 0.95em; }
+
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; text-transform: capitalize; }
+        .badge-academic { background: #e8f5e9; color: #2e7d32; }
+        .badge-pastoral { background: #fce4ec; color: #c2185b; }
+        .badge-other-half { background: #fff9c4; color: #f57f17; }
+        .badge-other { background: #f3e5f5; color: #7b1fa2; }
+        .badge-internal-appointments { background: #e1f5fe; color: #01579b; }
+        .badge-training-delivered { background: #e0f2f1; color: #004d40; }
+
+        .file-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 12px;
+            color: #764ba2;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            padding: 5px 10px;
+            background: #eee;
+            border-radius: 5px;
+        }
+        .file-link:hover { background: #e2d9f3; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; }
+        .tab {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab.active { background: white; color: #667eea; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .loading { text-align: center; padding: 40px; color: #667eea; }
+        .success-message { background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .error-message { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-top: 10px; }
+
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+
+        @media (max-width: 768px) {
+            .row, .filter-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mark Johnson</h1>
+            <p>Professional Development Review Portfolio</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('portfolio')">📋 View Portfolio</button>
+            <button class="tab" onclick="switchTab('add')">➕ Add New Entry</button>
+        </div>
+
+        <div id="portfolioTab" class="tab-content active">
+            <div class="card">
+                <h2 style="margin-bottom: 20px; color: #333;">MTJ Portfolio</h2>
+                
+                <div class="filter-row">
+                    <div class="form-group">
+                        <label for="filterCategory">Filter Category</label>
+                        <select id="filterCategory">
+                            <option value="all">All Categories</option>
+                            <option value="academic">Academic</option>
+                            <option value="pastoral">Pastoral</option>
+                            <option value="other-half">Other Half</option>
+                            <option value="other">Other</option>
+                            <option value="internal-appointments">Internal Appointments</option>
+                            <option value="internal-interviews-not-selected">Internal Interviews - Not Selected</option>
+                            <option value="external-appointments">External Appointments</option>
+                            <option value="committees">Committees</option>
+                            <option value="whole-school-items">Whole-School Items</option>
+                            <option value="training-delivered">Training Delivered</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sortOrder">Sort By</label>
+                        <select id="sortOrder">
+                            <option value="date-new">Date (Newest First)</option>
+                            <option value="date-old">Date (Oldest First)</option>
+                            <option value="name-az">Name (A-Z)</option>
+                            <option value="name-za">Name (Z-A)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pdrDate">PDR Date (2yr filter)</label>
+                        <input type="date" id="pdrDate">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <button onclick="loadLogs()" class="btn" style="width: auto; padding: 10px 20px;">🔄 Refresh</button>
+                    <button onclick="clearFilters()" class="btn" style="background: #6c757d; width: auto; padding: 10px 20px;">Clear Filters</button>
+                </div>
+
+                <div id="logsList"></div>
+            </div>
+        </div>
+
+        <div id="addTab" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 30px; color: #333;">Add New Course Log</h2>
+                <form id="courseForm">
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="courseName">Course Name *</label>
+                            <input type="text" id="courseName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="provider">Provider *</label>
+                            <input type="text" id="provider" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" required>
+                                <option value="">Select category</option>
+                                <option value="academic">Academic</option>
+                                <option value="pastoral">Pastoral</option>
+                                <option value="other-half">Other Half</option>
+                                <option value="other">Other</option>
+                                <option value="internal-appointments">Internal Appointments</option>
+                                <option value="internal-interviews-not-selected">Internal Interviews - Not Selected</option>
+                                <option value="external-appointments">External Appointments</option>
+                                <option value="committees">Committees</option>
+                                <option value="whole-school-items">Whole-School Items</option>
+                                <option value="training-delivered">Training Delivered</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="fileUpload">Evidence (Optional)</label>
+                            <input type="file" id="fileUpload">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="startDate">Start Date *</label>
+                            <input type="date" id="startDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="completionDate">Completion Date</label>
+                            <input type="date" id="completionDate">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Key Learnings</label>
+                        <textarea id="description" placeholder="What did you learn?"></textarea>
+                    </div>
+                    <button type="submit" class="btn" id="submitBtn">Save Entry</button>
+                    <div id="formMessage"></div>
+                </form>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="sortOrder">Sort By</label>
-        <select id="sortOrder">
-            <option value="date-new">Date (Newest First)</option>
-            <option value="date-old">Date (Oldest First)</option>
-            <option value="name-az">Course Name (A-Z)</option>
-            <option value="name-za">Course Name (Z-A)</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="pdrDate">PDR Date (filters last 2 years)</label>
-        <input type="date" id="pdrDate">
-    </div>
-</div>
+
+    <script>
+        let logs = [];
+        let currentFilter = 'all';
+        let pdrDateValue = null;
+        
+        // PASTE YOUR WEB APP URL HERE
+        let scriptUrl = 'PASTE_YOUR_NEW_DEPLOYMENT_URL_HERE';
+
+        window.addEventListener('load', loadLogs);
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            if (tabName === 'portfolio') {
+                document.getElementById('portfolioTab').classList.add('active');
+                document.querySelectorAll('.tab')[0].classList.add('active');
+            } else {
+                document.getElementById('addTab').classList.add('active');
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            }
+        }
+
+        async function loadLogs() {
+            const listEl = document.getElementById('logsList');
+            listEl.innerHTML = '<div class="loading">Fetching your portfolio...</div>';
+            try {
+                const response = await fetch(scriptUrl + '?_t=' + Date.now());
+                const data = await response.json();
+                logs = (Array.isArray(data) ? data : []).map(row => ({
+                    courseName: row['Course Name'] || '',
+                    provider: row['Provider'] || '',
+                    category: row['Category'] || 'other',
+                    startDate: row['Start Date'] || '',
+                    description: row['Description'] || '',
+                    fileUrl: row['Files'] || ''
+                })).filter(l => l.courseName);
+                renderLogs();
+            } catch (e) {
+                listEl.innerHTML = '<div class="error-message">Error connecting to Google Sheets.</div>';
+            }
+        }
+
+        function renderLogs() {
+            const list = document.getElementById('logsList');
+            const sortOrder = document.getElementById('sortOrder').value;
+            
+            // 1. Filter
+            let filtered = logs.filter(l => currentFilter === 'all' || l.category === currentFilter);
+            
+            if (pdrDateValue) {
+                const cutoff = new Date(pdrDateValue);
+                cutoff.setFullYear(cutoff.getFullYear() - 2);
+                filtered = filtered.filter(l => {
+                    const d = new Date(l.startDate);
+                    return d >= cutoff && d <= new Date(pdrDateValue);
+                });
+            }
+
+            // 2. Sort
+            filtered.sort((a, b) => {
+                if (sortOrder === 'date-new') return new Date(b.startDate) - new Date(a.startDate);
+                if (sortOrder === 'date-old') return new Date(a.startDate) - new Date(b.startDate);
+                if (sortOrder === 'name-az') return a.courseName.localeCompare(b.courseName);
+                if (sortOrder === 'name-za') return b.courseName.localeCompare(a.courseName);
+                return 0;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No entries found matching filters.</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(log => `
+                <div class="log-entry">
+                    <h3>${log.courseName}</h3>
+                    <div class="log-meta">
+                        <span class="badge badge-${log.category}">${log.category.replace(/-/g, ' ')}</span>
+                        <span>🏢 ${log.provider}</span>
+                        <span>📅 ${formatDate(log.startDate)}</span>
+                    </div>
+                    ${log.description ? `<div class="log-description">${log.description}</div>` : ''}
+                    ${log.fileUrl && log.fileUrl.startsWith('http') ? 
+                        `<a href="${log.fileUrl}" target="_blank" class="file-link">📎 View Evidence</a>` : ''}
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('courseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const fileInput = document.getElementById('fileUpload');
+            btn.disabled = true;
+            btn.textContent = 'Uploading & Saving...';
+
+            let fileData = null;
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileData = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve({
+                        base64: e.target.result.split(',')[1],
+                        type: file.type,
+                        name: file.name
+                    });
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            const logData = {
+                courseName: document.getElementById('courseName').value,
+                provider: document.getElementById('provider').value,
+                category: document.getElementById('category').value,
+                startDate: document.getElementById('startDate').value,
+                completionDate: document.getElementById('completionDate').value,
+                description: document.getElementById('description').value,
+                status: 'Completed',
+                file: fileData
+            };
+
+            try {
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(logData)
+                });
+                showMessage('formMessage', 'Entry Saved Successfully!', 'success');
+                this.reset();
+                setTimeout(() => { loadLogs(); switchTab('portfolio'); }, 1500);
+            } catch (err) {
+                showMessage('formMessage', 'Submission Error. Check Connection.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Entry';
+            }
+        });
+
+        function formatDate(ds) {
+            if (!ds) return 'N/A';
+            const d = new Date(ds);
+            return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+        }
+
+        function showMessage(id, msg, type) {
+            const el = document.getElementById(id);
+            el.innerHTML = `<div class="${type}-message">${msg}</div>`;
+            setTimeout(() => el.innerHTML = '', 4000);
+        }
+
+        // Listeners for filters
+        document.getElementById('filterCategory').addEventListener('change', (e) => { currentFilter = e.target.value; renderLogs(); });
+        document.getElementById('sortOrder').addEventListener('change', renderLogs);
+        document.getElementById('pdrDate').addEventListener('change', (e) => { pdrDateValue = e.target.value; renderLogs(); });
+
+        function clearFilters() {
+            currentFilter = 'all'; pdrDateValue = null;
+            document.getElementById('filterCategory').value = 'all';
+            document.getElementById('sortOrder').value = 'date-new';
+            document.getElementById('pdrDate').value = '';
+            renderLogs();
+        }
+    </script>
+</body>
+</html>
