@@ -5,166 +5,208 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professional Development Course Logger</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        /* Abingdon Brand Colors: Cerise (#C31B4D) and Dark Slate/Charcoal (#1A1F24) */
+        :root {
+            --abingdon-cerise: #C31B4D;
+            --abingdon-cerise-dark: #9F143D;
+            --abingdon-slate: #1A1F24;
+            --bg-light: #F4F6F9;
+            --card-bg: #FFFFFF;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: var(--bg-light);
+            color: #333;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
         .container { max-width: 1000px; margin: 0 auto; }
-        .header { text-align: center; color: white; margin-bottom: 40px; animation: fadeInDown 0.8s ease; }
-        .header h1 { font-size: 2.5em; margin-bottom: 10px; font-weight: 600; }
-        .header p { font-size: 1.1em; opacity: 0.9; }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+            animation: fadeInDown 0.8s ease; 
+        }
+        
+        .header h1 { 
+            font-size: 2.8em; 
+            color: var(--abingdon-slate); 
+            margin-bottom: 5px; 
+            font-weight: 700; 
+            letter-spacing: -0.5px;
+        }
+        
+        .header p { 
+            font-size: 1.1em; 
+            color: #666; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .drive-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--abingdon-cerise);
+            font-size: 0.95em;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            background: rgba(195, 27, 77, 0.05);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .drive-link:hover { background: rgba(195, 27, 77, 0.1); }
         
         .card {
-            background: white;
-            border-radius: 16px;
+            background: var(--card-bg);
+            border-radius: 12px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
+            border-top: 5px solid var(--abingdon-cerise);
             animation: fadeInUp 0.8s ease;
         }
 
         .form-group { margin-bottom: 25px; }
-        label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; font-size: 0.95em; }
+        label { display: block; margin-bottom: 8px; color: var(--abingdon-slate); font-weight: 600; font-size: 0.95em; }
         
         input[type="text"], input[type="date"], input[type="file"], select, textarea {
             width: 100%;
             padding: 12px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
             font-size: 1em;
             transition: all 0.3s ease;
             font-family: inherit;
+            background: #FAFAFA;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--abingdon-cerise);
+            box-shadow: 0 0 0 3px rgba(195, 27, 77, 0.1);
+            background: #FFF;
         }
 
-        /* 3-column layout for filters */
-        .filter-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        /* 2-column layout for form */
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+        .filter-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--abingdon-cerise);
             color: white;
             padding: 14px 32px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             width: 100%;
             margin-top: 10px;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
+        .btn:hover { background: var(--abingdon-cerise-dark); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .btn-secondary {
+            background: #E5E7EB;
+            color: #374151;
+        }
+        .btn-secondary:hover { background: #D1D5DB; }
 
         .log-entry {
-            background: #f8f9ff;
-            border-left: 4px solid #667eea;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-left: 4px solid var(--abingdon-cerise);
             padding: 20px;
             margin-bottom: 15px;
-            border-radius: 8px;
-            animation: slideIn 0.5s ease;
+            border-radius: 6px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .log-entry h3 { color: #333; margin-bottom: 10px; }
-        .log-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; font-size: 0.9em; color: #666; }
-        .log-description { color: #555; line-height: 1.6; margin-top: 10px; font-size: 0.95em; }
+        .log-entry:hover { transform: translateX(4px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .log-entry h3 { color: var(--abingdon-slate); margin-bottom: 10px; font-size: 1.3em; }
+        .log-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.9em; color: #6B7280; }
+        .log-description { color: #4B5563; line-height: 1.6; font-size: 0.95em; padding-top: 10px; border-top: 1px solid #F3F4F6; }
 
-        .badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; text-transform: capitalize; }
-        .badge-academic { background: #e8f5e9; color: #2e7d32; }
-        .badge-pastoral { background: #fce4ec; color: #c2185b; }
-        .badge-other-half { background: #fff9c4; color: #f57f17; }
-        .badge-other { background: #f3e5f5; color: #7b1fa2; }
-        .badge-internal-appointments { background: #e1f5fe; color: #01579b; }
-        .badge-training-delivered { background: #e0f2f1; color: #004d40; }
+        /* Muted Professional Badges */
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-academic { background: #E0F2FE; color: #0369A1; }
+        .badge-pastoral { background: #FEF3C7; color: #92400E; }
+        .badge-other-half { background: #FCE7F3; color: #9D174D; }
+        .badge-other { background: #F3F4F6; color: #4B5563; }
+        .badge-internal-appointments { background: #E0E7FF; color: #3730A3; }
+        .badge-training-delivered { background: #DCFCE7; color: #166534; }
 
-        .file-link {
+        .file-btn {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            margin-top: 12px;
-            color: #764ba2;
-            text-decoration: none;
+            gap: 6px;
+            margin-top: 15px;
+            color: var(--abingdon-cerise);
+            background: white;
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 1px solid var(--abingdon-cerise);
+            font-size: 0.85em;
             font-weight: 600;
-            font-size: 0.9em;
-            padding: 5px 10px;
-            background: #eee;
-            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .file-link:hover { background: #e2d9f3; }
+        .file-btn:hover { background: var(--abingdon-cerise); color: white; }
 
-        .tabs { display: flex; gap: 10px; margin-bottom: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; }
         .tab {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
+            background: #E5E7EB;
+            color: #4B5563;
             padding: 12px 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
-        .tab.active { background: white; color: #667eea; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+        .tab:hover { background: #D1D5DB; }
+        .tab.active { background: var(--abingdon-slate); color: white; }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .loading { text-align: center; padding: 40px; color: #667eea; }
-        .success-message { background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-top: 10px; }
-        .error-message { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .loading { text-align: center; padding: 40px; color: var(--abingdon-cerise); font-weight: 600; }
+        .success-message { background: #DCFCE7; color: #166534; padding: 15px; border-radius: 6px; margin-top: 15px; font-weight: 500;}
+        .error-message { background: #FEE2E2; color: #991B1B; padding: 15px; border-radius: 6px; margin-top: 15px; font-weight: 500;}
 
         @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-
-        @media (max-width: 768px) {
-            .row, .filter-row { grid-template-columns: 1fr; }
-        }
+        
+        @media (max-width: 768px) { .row, .filter-row { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Mark Johnson</h1>
-            <p>Professional Development Review Portfolio</p>
+            <p>Professional Development Review</p>
+            <a href="https://drive.google.com/drive/u/0/folders/1GvkdVRuapZuDCCAa-ZQtLwcf-7z3tJnl" target="_blank" class="drive-link">
+                📂 Here is a link to the main Google Drive folder to view other documents, e.g. Academic Lesson Observations or Coaching Conversations.
+            </a>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('portfolio')">📋 View Portfolio</button>
-            <button class="tab" onclick="switchTab('add')">➕ Add New Entry</button>
+            <button class="tab active" onclick="switchTab('portfolio')">View Portfolio</button>
+            <button class="tab" onclick="switchTab('add')">Add New Entry</button>
         </div>
 
         <div id="portfolioTab" class="tab-content active">
             <div class="card">
-               <h2 style="margin-bottom: 5px; color: #333;">MTJ Portfolio</h2>
-<p style="margin-bottom: 25px;">
-    <a href="https://drive.google.com/drive/u/0/folders/1GvkdVRuapZuDCCAa-ZQtLwcf-7z3tJnl" target="_blank" style="color: #764ba2; font-size: 0.9em; text-decoration: none; font-weight: 500;">
-        📂 Here is a link to the main Google Drive folder to view other documents, e.g. Academic Lesson Observations or Coaching Conversations.
-    </a>
-</p>
-
+                <h2 style="margin-bottom: 25px; color: var(--abingdon-slate);">Portfolio Overview</h2>
                 
                 <div class="filter-row">
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label for="filterCategory">Filter Category</label>
                         <select id="filterCategory">
                             <option value="all">All Categories</option>
@@ -180,7 +222,7 @@
                             <option value="training-delivered">Training Delivered</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label for="sortOrder">Sort By</label>
                         <select id="sortOrder">
                             <option value="date-new">Date (Newest First)</option>
@@ -189,15 +231,15 @@
                             <option value="name-za">Name (Z-A)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="pdrDate">PDR Date (2 year filter)</label>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="pdrDate">PDR Date (2yr filter)</label>
                         <input type="date" id="pdrDate">
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <button onclick="loadLogs()" class="btn" style="width: auto; padding: 10px 20px;">🔄 Refresh</button>
-                    <button onclick="clearFilters()" class="btn" style="background: #6c757d; width: auto; padding: 10px 20px;">Clear Filters</button>
+                <div style="display: flex; gap: 10px; margin-bottom: 30px; border-bottom: 1px solid #E5E7EB; padding-bottom: 25px;">
+                    <button onclick="loadLogs()" class="btn" style="width: auto; padding: 10px 24px; margin-top: 0;">Refresh List</button>
+                    <button onclick="clearFilters()" class="btn btn-secondary" style="width: auto; padding: 10px 24px; margin-top: 0;">Clear Filters</button>
                 </div>
 
                 <div id="logsList"></div>
@@ -206,15 +248,15 @@
 
         <div id="addTab" class="tab-content">
             <div class="card">
-                <h2 style="margin-bottom: 30px; color: #333;">Add New Course Log</h2>
+                <h2 style="margin-bottom: 25px; color: var(--abingdon-slate);">Log a Course or Event</h2>
                 <form id="courseForm">
                     <div class="row">
                         <div class="form-group">
-                            <label for="courseName">Course Name *</label>
+                            <label for="courseName">Course Title *</label>
                             <input type="text" id="courseName" required>
                         </div>
                         <div class="form-group">
-                            <label for="provider">Provider *</label>
+                            <label for="provider">Provider / Location *</label>
                             <input type="text" id="provider" required>
                         </div>
                     </div>
@@ -236,7 +278,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="fileUpload">Evidence (Optional)</label>
+                            <label for="fileUpload">Evidence Document (Optional)</label>
                             <input type="file" id="fileUpload">
                         </div>
                     </div>
@@ -251,13 +293,23 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="description">Key Learnings</label>
-                        <textarea id="description" placeholder="What did you learn?"></textarea>
+                        <label for="description">Key Takeaways & Reflection</label>
+                        <textarea id="description" placeholder="Notes on what was covered..."></textarea>
                     </div>
-                    <button type="submit" class="btn" id="submitBtn">Save Entry</button>
+                    <button type="submit" class="btn" id="submitBtn">Save Entry to Portfolio</button>
                     <div id="formMessage"></div>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <div id="evidenceModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(26, 31, 36, 0.9); align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+        <div style="background:white; width:90%; max-width: 1000px; height:90%; border-radius:12px; position:relative; display:flex; flex-direction:column; overflow:hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+            <div style="padding:15px 20px; border-bottom:1px solid #E5E7EB; display:flex; justify-content:space-between; align-items:center; background:#F9FAFB;">
+                <strong id="modalTitle" style="color:var(--abingdon-slate); font-size: 1.1em;">Evidence Preview</strong>
+                <button onclick="closeModal()" style="background:var(--abingdon-slate); color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600; transition: background 0.2s;">Close Window</button>
+            </div>
+            <iframe id="modalIframe" src="" style="width:100%; height:100%; border:none; background: #f3f4f6;"></iframe>
         </div>
     </div>
 
@@ -266,7 +318,7 @@
         let currentFilter = 'all';
         let pdrDateValue = null;
         
-        // PASTE YOUR WEB APP URL HERE
+        // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
         let scriptUrl = 'https://script.google.com/macros/s/AKfycbx5sQVvRlkDS-rltB0G_TL7abLB05oHwGR8-qoS0dLrR1KVXeApwErL42IRkZ7G3Y660g/exec';
 
         window.addEventListener('load', loadLogs);
@@ -285,7 +337,7 @@
 
         async function loadLogs() {
             const listEl = document.getElementById('logsList');
-            listEl.innerHTML = '<div class="loading">Fetching your portfolio...</div>';
+            listEl.innerHTML = '<div class="loading">Loading portfolio records...</div>';
             try {
                 const response = await fetch(scriptUrl + '?_t=' + Date.now());
                 const data = await response.json();
@@ -299,7 +351,7 @@
                 })).filter(l => l.courseName);
                 renderLogs();
             } catch (e) {
-                listEl.innerHTML = '<div class="error-message">Error connecting to Google Sheets.</div>';
+                listEl.innerHTML = '<div class="error-message">Error connecting to database. Please check connection.</div>';
             }
         }
 
@@ -307,7 +359,6 @@
             const list = document.getElementById('logsList');
             const sortOrder = document.getElementById('sortOrder').value;
             
-            // 1. Filter
             let filtered = logs.filter(l => currentFilter === 'all' || l.category === currentFilter);
             
             if (pdrDateValue) {
@@ -319,7 +370,6 @@
                 });
             }
 
-            // 2. Sort
             filtered.sort((a, b) => {
                 if (sortOrder === 'date-new') return new Date(b.startDate) - new Date(a.startDate);
                 if (sortOrder === 'date-old') return new Date(a.startDate) - new Date(b.startDate);
@@ -329,7 +379,7 @@
             });
 
             if (filtered.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">No entries found matching filters.</div>';
+                list.innerHTML = '<div style="text-align:center; padding:40px; color:#6B7280;">No entries found matching current criteria.</div>';
                 return;
             }
 
@@ -343,9 +393,33 @@
                     </div>
                     ${log.description ? `<div class="log-description">${log.description}</div>` : ''}
                     ${log.fileUrl && log.fileUrl.startsWith('http') ? 
-                        `<button onclick="openModal('${log.fileUrl}', '${log.courseName}')" class="file-btn">View Evidence</button>` : ''}
+                        `<button onclick="openModal('${log.fileUrl}', '${log.courseName.replace(/'/g, "\\'")}')" class="file-btn">👁️ View Evidence</button>` : ''}
                 </div>
             `).join('');
+        }
+
+        // Modal Functions
+        function openModal(url, title) {
+            const modal = document.getElementById('evidenceModal');
+            const iframe = document.getElementById('modalIframe');
+            document.getElementById('modalTitle').innerText = title || "Evidence Preview";
+
+            let previewUrl = url;
+            if (url.includes('drive.google.com')) {
+                previewUrl = url.replace(/\/view.*|\/edit.*/, '/preview');
+            }
+
+            iframe.src = previewUrl;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('evidenceModal');
+            const iframe = document.getElementById('modalIframe');
+            modal.style.display = 'none';
+            iframe.src = ""; 
+            document.body.style.overflow = 'auto'; 
         }
 
         document.getElementById('courseForm').addEventListener('submit', async function(e) {
@@ -393,7 +467,7 @@
                 showMessage('formMessage', 'Submission Error. Check Connection.', 'error');
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Save Entry';
+                btn.textContent = 'Save Entry to Portfolio';
             }
         });
 
@@ -409,7 +483,6 @@
             setTimeout(() => el.innerHTML = '', 4000);
         }
 
-        // Listeners for filters
         document.getElementById('filterCategory').addEventListener('change', (e) => { currentFilter = e.target.value; renderLogs(); });
         document.getElementById('sortOrder').addEventListener('change', renderLogs);
         document.getElementById('pdrDate').addEventListener('change', (e) => { pdrDateValue = e.target.value; renderLogs(); });
@@ -421,40 +494,6 @@
             document.getElementById('pdrDate').value = '';
             renderLogs();
         }
-function openModal(url, title) {
-    const modal = document.getElementById('evidenceModal');
-    const iframe = document.getElementById('modalIframe');
-    document.getElementById('modalTitle').innerText = title || "Evidence Preview";
-
-    // IMPORTANT: Transform the Drive Link to a "Preview" link to bypass the block
-    let previewUrl = url;
-    if (url.includes('drive.google.com')) {
-        // This converts /view or /edit links into /preview links which allow embedding
-        previewUrl = url.replace(/\/view.*|\/edit.*/, '/preview');
-    }
-
-    iframe.src = previewUrl;
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Stop the background from scrolling
-}
-
-function closeModal() {
-    const modal = document.getElementById('evidenceModal');
-    const iframe = document.getElementById('modalIframe');
-    modal.style.display = 'none';
-    iframe.src = ""; // Stop the file/video from playing in the background
-    document.body.style.overflow = 'auto'; // Re-enable scrolling
-}
-        
     </script>
-    <div id="evidenceModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); align-items:center; justify-content:center;">
-    <div style="background:white; width:90%; height:90%; border-radius:12px; position:relative; display:flex; flex-direction:column; overflow:hidden;">
-        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background:#f8f9ff;">
-            <strong id="modalTitle" style="color:#333;">Evidence Preview</strong>
-            <button onclick="closeModal()" style="background:#ff4757; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">Close [X]</button>
-        </div>
-        <iframe id="modalIframe" src="" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
-</div>
 </body>
 </html>
