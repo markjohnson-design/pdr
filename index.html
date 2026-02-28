@@ -343,7 +343,7 @@
                     </div>
                     ${log.description ? `<div class="log-description">${log.description}</div>` : ''}
                     ${log.fileUrl && log.fileUrl.startsWith('http') ? 
-                        `<a href="${log.fileUrl}" target="_blank" class="file-link">📎 View Evidence</a>` : ''}
+                        `<button onclick="openModal('${log.fileUrl}', '${log.courseName}')" class="file-btn">View Evidence</button>` : ''}
                 </div>
             `).join('');
         }
@@ -421,6 +421,40 @@
             document.getElementById('pdrDate').value = '';
             renderLogs();
         }
+function openModal(url, title) {
+    const modal = document.getElementById('evidenceModal');
+    const iframe = document.getElementById('modalIframe');
+    document.getElementById('modalTitle').innerText = title || "Evidence Preview";
+
+    // IMPORTANT: Transform the Drive Link to a "Preview" link to bypass the block
+    let previewUrl = url;
+    if (url.includes('drive.google.com')) {
+        // This converts /view or /edit links into /preview links which allow embedding
+        previewUrl = url.replace(/\/view.*|\/edit.*/, '/preview');
+    }
+
+    iframe.src = previewUrl;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Stop the background from scrolling
+}
+
+function closeModal() {
+    const modal = document.getElementById('evidenceModal');
+    const iframe = document.getElementById('modalIframe');
+    modal.style.display = 'none';
+    iframe.src = ""; // Stop the file/video from playing in the background
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+        
     </script>
+    <div id="evidenceModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); align-items:center; justify-content:center;">
+    <div style="background:white; width:90%; height:90%; border-radius:12px; position:relative; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center; background:#f8f9ff;">
+            <strong id="modalTitle" style="color:#333;">Evidence Preview</strong>
+            <button onclick="closeModal()" style="background:#ff4757; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:600;">Close [X]</button>
+        </div>
+        <iframe id="modalIframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+    </div>
+</div>
 </body>
 </html>
