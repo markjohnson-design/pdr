@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Development Course Logger</title>
+    <title>gProfessional Development Course Logger</title>
     <style>
         /* Abingdon Brand Colors: Cerise (#C31B4D) and Dark Slate/Charcoal (#1A1F24) */
         :root {
@@ -132,7 +132,6 @@
         .log-meta { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.9em; color: #6B7280; }
         .log-description { color: #4B5563; line-height: 1.6; font-size: 0.95em; padding-top: 10px; border-top: 1px solid #F3F4F6; }
 
-        /* Muted Professional Badges */
         .badge { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 0.85em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge-academic { background: #E0F2FE; color: #0369A1; }
         .badge-pastoral { background: #FEF3C7; color: #92400E; }
@@ -192,7 +191,7 @@
             <h1>Mark Johnson</h1>
             <p>Professional Development Review</p>
             <a href="https://drive.google.com/drive/u/0/folders/1GvkdVRuapZuDCCAa-ZQtLwcf-7z3tJnl" target="_blank" class="drive-link">
-                📂 Here is a link to the main Google Drive folder to view other documents, e.g. Academic Lesson Observations or Coaching Conversations.
+                📂 Here is a link to the main Google Drive folder to view other documents
             </a>
         </div>
 
@@ -318,7 +317,7 @@
         let currentFilter = 'all';
         let pdrDateValue = null;
         
-        // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+        // --- PASTE YOUR NEW GOOGLE APPS SCRIPT WEB APP URL HERE ---
         let scriptUrl = 'https://script.google.com/macros/s/AKfycbx5sQVvRlkDS-rltB0G_TL7abLB05oHwGR8-qoS0dLrR1KVXeApwErL42IRkZ7G3Y660g/exec';
 
         window.addEventListener('load', loadLogs);
@@ -398,7 +397,6 @@
             `).join('');
         }
 
-        // Modal Functions
         function openModal(url, title) {
             const modal = document.getElementById('evidenceModal');
             const iframe = document.getElementById('modalIframe');
@@ -455,14 +453,22 @@
             };
 
             try {
-                await fetch(scriptUrl, {
+                const response = await fetch(scriptUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify(logData)
+                    body: JSON.stringify(logData),
+                    redirect: 'follow'
                 });
-                showMessage('formMessage', 'Entry Saved Successfully!', 'success');
-                this.reset();
-                setTimeout(() => { loadLogs(); switchTab('portfolio'); }, 1500);
+                
+                const result = await response.json();
+
+                if (result.success) {
+                    showMessage('formMessage', 'Entry Saved Successfully!', 'success');
+                    document.getElementById('courseForm').reset();
+                    setTimeout(() => { loadLogs(); switchTab('portfolio'); }, 1500);
+                } else {
+                    showMessage('formMessage', 'Error saving data: ' + result.error, 'error');
+                }
             } catch (err) {
                 showMessage('formMessage', 'Submission Error. Check Connection.', 'error');
             } finally {
